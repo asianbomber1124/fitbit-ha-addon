@@ -45,7 +45,7 @@ This Home Assistant add-on fetches data from your Fitbit device and stores it in
 
 1. Set up your Fitbit Application at [dev.fitbit.com](https://dev.fitbit.com)
 2. Note down your Client ID and Client Secret
-3. Get your refresh token using the [Fitbit OAuth 2.0 Tutorial](https://dev.fitbit.com/build/reference/web-api/developer-guide/authorization/)
+3. Get your refresh token using the [Fitbit OAuth 2.0 Tutorial](https://dev.fitbit.com/build/reference/web-api/troubleshooting-guide/oauth2-tutorial/?applicationType=PERSONAL)
 4. Configure the add-on with your credentials
 5. Start the add-on
 
