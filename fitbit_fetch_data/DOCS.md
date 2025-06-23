@@ -18,12 +18,14 @@ This Home Assistant add-on provides seamless integration with Fitbit devices, au
 - Heart Rate Variability (HRV)
 - Skin Temperature
 - Activity Records
+- GPS data for activities (when available)
+- Weight and BMI
 
 ### Additional Features
 - Automatic token refresh
 - Historical data backfilling
 - Rate limit aware operation
-- Support for both InfluxDB 1.x and 2.x
+- Support for InfluxDB 1.x, 2.x, and 3.x
 - Configurable update intervals
 - Timezone awareness
 
@@ -78,6 +80,8 @@ devicename: "your-fitbit-device-name"
 
 ### InfluxDB Configuration
 
+Set `influxdb_version` to "1", "2", or "3" and fill in the corresponding variables below.
+
 For InfluxDB 1.x:
 ```yaml
 influxdb_version: "1"
@@ -91,16 +95,24 @@ influxdb_database: "fitbit"
 For InfluxDB 2.x:
 ```yaml
 influxdb_version: "2"
+influxdb_url: "http://your-influxdb-url:8086"
 influxdb_bucket: "your-bucket"
 influxdb_org: "your-org"
 influxdb_token: "your-token"
-influxdb_url: "http://your-influxdb-url:8086"
+```
+
+For InfluxDB 3.x:
+```yaml
+influxdb_version: "3"
+influxdb_url: "https://your-cloud-region.aws.cloud2.influxdata.com"
+influxdb_database: "your-database"
+influxdb_v3_access_token: "your-v3-token"
 ```
 
 ### Optional Configuration
 
 ```yaml
-local_timezone: "Europe/Berlin"  # Your local timezone (defaults to "Europe/Berlin")
+local_timezone: "Automatic"  # Your local timezone (e.g., "Europe/Berlin") or "Automatic"
 ```
 
 ## File Storage

@@ -234,6 +234,24 @@ elif INFLUXDB_VERSION == "1":
     except InfluxDBClientError as err:
         logging.error("Unable to connect with influxdb 1.x database! Aborted")
         raise InfluxDBClientError("InfluxDB connection failed:" + str(err))
+elif INFLUXDB_VERSION == "3":
+    try:
+        influxdbclient = InfluxDBClient3(
+                host=INFLUXDB_URL,
+                token=INFLUXDB_V3_ACCESS_TOKEN,
+                database=INFLUXDB_DATABASE
+                )
+        demo_point = {
+        'measurement': 'DemoPoint',
+        'tags': {'host': 'host1'},
+        'time': datetime.utcnow().isoformat(),
+        'fields': {'value': 0}
+        }
+        influxdbclient.write_points([demo_point])
+        logging.info("Successfully connected to InfluxDB v3 and wrote demo point")
+    except Exception as err:
+        logging.error("Unable to connect with influxdb 3.x database! Aborted")
+        raise Exception("InfluxDB connection failed:" + str(err))
 else:
     logging.error("No matching version found. Supported values are 1 and 2")
     raise InfluxDBClientError("No matching version found. Supported values are 1 and 2:")

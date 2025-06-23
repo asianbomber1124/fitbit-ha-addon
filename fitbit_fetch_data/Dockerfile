@@ -14,6 +14,9 @@ COPY requirements.txt /app/
 COPY Fitbit_Fetch.py /app/
 COPY run.sh /app/
 
+# Install build dependencies for packages that need to compile
+RUN apk add --no-cache libxml2-dev libxslt-dev
+
 # Install requirements
 RUN pip install -r requirements.txt
 
