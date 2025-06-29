@@ -139,7 +139,12 @@ def request_data_from_fitbit(url, headers={}, params={}, data={}, request_type="
             if response.status_code == 200:  # Success
                 return response.json()
             elif response.status_code == 429:  # API Limit reached
-                retry_after = int(response.headers["Retry-After"]) + 300
+                retry_after_header = response.headers.get("Retry-After")
+                if retry_after_header and retry_after_header.isdigit():
+                    retry_after = int(retry_after_header) + 300
+                else:
+                    # Default wait time if Retry-After header is missing or not a number, e.g., 1 hour
+                    retry_after = 3600
                 logging.warning("Fitbit API limit reached. Error code : " + str(response.status_code) + ", Retrying in " + str(retry_after) + " seconds")
                 print("Fitbit API limit reached. Error code : " + str(response.status_code) + ", Retrying in " + str(retry_after) + " seconds")
                 time.sleep(retry_after)
@@ -164,7 +169,7 @@ def request_data_from_fitbit(url, headers={}, params={}, data={}, request_type="
             else:
                 logging.error("Fitbit API request failed. Status code: " + str(response.status_code) + " " + str(response.text))
                 print(f"Fitbit API request failed. Status code: {response.status_code}", response.text)
-                response.raise_for_status()
+                # response.raise_for_status()
                 return None
 
         except ConnectionError as e:
@@ -234,6 +239,24 @@ elif INFLUXDB_VERSION == "1":
     except InfluxDBClientError as err:
         logging.error("Unable to connect with influxdb 1.x database! Aborted")
         raise InfluxDBClientError("InfluxDB connection failed:" + str(err))
+elif INFLUXDB_VERSION == "3":
+    try:
+        influxdbclient = InfluxDBClient3(
+                host=INFLUXDB_URL,
+                token=INFLUXDB_V3_ACCESS_TOKEN,
+                database=INFLUXDB_DATABASE
+                )
+        demo_point = {
+        'measurement': 'DemoPoint',
+        'tags': {'host': 'host1'},
+        'time': datetime.utcnow().isoformat(),
+        'fields': {'value': 0}
+        }
+        influxdbclient.write_points([demo_point])
+        logging.info("Successfully connected to InfluxDB v3 and wrote demo point")
+    except Exception as err:
+        logging.error("Unable to connect with influxdb 3.x database! Aborted")
+        raise Exception("InfluxDB connection failed:" + str(err))
 else:
     logging.error("No matching version found. Supported values are 1 and 2")
     raise InfluxDBClientError("No matching version found. Supported values are 1 and 2:")
