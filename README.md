@@ -63,3 +63,6 @@ This project is under the BSD 4-Clause License. See the LICENSE file for details
 ## Acknowledgments
 
 This add-on is based on the [Fitbit Fetch project](https://github.com/arpanghosh8453/public-fitbit-projects) by Arpan Ghosh. Special thanks to the original author for creating the foundation for this integration.
+
+
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://coff.ee/xddnjwl8u1)
