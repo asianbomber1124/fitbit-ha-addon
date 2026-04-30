@@ -4,7 +4,7 @@
 
 name: "Fitbit Fetch Data"
 description: "Fetch Fitbit health data into InfluxDB – supports multiple users."
-version: "2.0.0"
+version: "2.1.0"
 slug: fitbit_fetch_data
 init: false
 homeassistant_api: false
@@ -38,6 +38,7 @@ options:
       client_secret: ""
       devicename: "Fitbit"
       local_timezone: "Automatic"
+      influxdb_database: "FitbitHealthStats"   # override per-user database/bucket
 
 schema:
   influxdb_host: str
@@ -59,3 +60,4 @@ schema:
       client_secret: str
       devicename: str
       local_timezone: str
+      influxdb_database: str
