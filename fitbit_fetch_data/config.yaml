@@ -5,7 +5,7 @@
 name: "Fitbit Fetch Data"
 description: "Fetch Fitbit health data into InfluxDB – supports multiple users."
 version: "2.1.0"
-slug: fitbit_fetch_data
+slug: fitbit_fetch_data_multiuser
 init: false
 homeassistant_api: false
 hassio_api: false
