@@ -4,9 +4,7 @@ fitbit_fetch_wrapper.py
 =======================
 Reads per-user environment variables set by run.sh (using --user-index N)
 and calls the original Fitbit Fetch logic with those credentials.
-
-The original fitbit_fetch.py reads from environment variables, so this
-wrapper simply sets the canonical names before importing / calling it.
+Each user can have their own InfluxDB database/bucket.
 """
 
 import argparse
@@ -15,10 +13,6 @@ import sys
 
 
 def load_user_env(index: int) -> None:
-    """
-    Copy the indexed env vars (e.g. FITBIT_USERNAME_0) into the canonical
-    names that the original fitbit_fetch.py expects.
-    """
     mapping = {
         f"FITBIT_USERNAME_{index}": "FITBIT_USERNAME",
         f"FITBIT_REFRESH_TOKEN_{index}": "FITBIT_REFRESH_TOKEN",
@@ -26,6 +20,7 @@ def load_user_env(index: int) -> None:
         f"FITBIT_CLIENT_SECRET_{index}": "FITBIT_CLIENT_SECRET",
         f"FITBIT_DEVICENAME_{index}": "FITBIT_DEVICENAME",
         f"FITBIT_LOCAL_TIMEZONE_{index}": "FITBIT_LOCAL_TIMEZONE",
+        f"FITBIT_INFLUXDB_DATABASE_{index}": "INFLUXDB_DATABASE",  # override shared DB
     }
 
     for src, dst in mapping.items():
@@ -34,31 +29,21 @@ def load_user_env(index: int) -> None:
             print(f"[ERROR] Missing env var: {src}", file=sys.stderr)
             sys.exit(1)
         os.environ[dst] = value
-        print(f"[INFO] User {index}: {dst} = {'***' if 'TOKEN' in dst or 'SECRET' in dst else value}")
+        safe_val = "***" if any(x in dst for x in ["TOKEN", "SECRET", "PASSWORD"]) else value
+        print(f"[INFO] User {index}: {dst} = {safe_val}")
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Fitbit Fetch multi-user wrapper")
-    parser.add_argument(
-        "--user-index",
-        type=int,
-        required=True,
-        help="Which user slot to read from environment (0-based)",
-    )
+    parser.add_argument("--user-index", type=int, required=True)
     args = parser.parse_args()
 
     load_user_env(args.user_index)
 
-    # Now that the canonical env vars are set, import and run the original fetcher.
-    # The original script should be importable as a module OR we exec it.
-    # Adjust the import path to match your repo layout.
     try:
-        # Option A: if the original logic is in a function called main()
         import fitbit_fetch  # type: ignore
         fitbit_fetch.main()
     except AttributeError:
-        # Option B: the original script runs at import time (no main guard)
-        # In this case exec it directly – already handled by env vars being set.
         print(
             "[WARNING] fitbit_fetch.main() not found – "
             "ensure the original script has a main() entry point.",
