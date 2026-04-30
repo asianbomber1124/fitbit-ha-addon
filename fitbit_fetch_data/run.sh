@@ -2,6 +2,7 @@
 # =============================================================================
 # Fitbit Fetch Data – Multi-User run.sh
 # Reads shared InfluxDB config once, then spawns one fetcher process per user.
+# Each user can optionally override the InfluxDB database/bucket.
 # =============================================================================
 
 set -e
@@ -46,18 +47,22 @@ for i in $(seq 0 $((USER_COUNT - 1))); do
     DEVICENAME=$(bashio::config "users[${i}].devicename")
     LOCAL_TIMEZONE=$(bashio::config "users[${i}].local_timezone")
 
-    bashio::log.info "Launching fetcher for user: ${USERNAME} (device: ${DEVICENAME})"
+    # Per-user database — fall back to shared setting if empty
+    USER_DB=$(bashio::config "users[${i}].influxdb_database")
+    if [ -z "${USER_DB}" ] || [ "${USER_DB}" = "null" ]; then
+        USER_DB="${INFLUXDB_DATABASE}"
+    fi
 
-    # Export per-user env vars with a USER_INDEX prefix so parallel
-    # processes don't stomp on each other when reading env.
+    bashio::log.info "Launching fetcher for user: ${USERNAME} (device: ${DEVICENAME}, database: ${USER_DB})"
+
     export "FITBIT_USERNAME_${i}=${USERNAME}"
     export "FITBIT_REFRESH_TOKEN_${i}=${REFRESH_TOKEN}"
     export "FITBIT_CLIENT_ID_${i}=${CLIENT_ID}"
     export "FITBIT_CLIENT_SECRET_${i}=${CLIENT_SECRET}"
     export "FITBIT_DEVICENAME_${i}=${DEVICENAME}"
     export "FITBIT_LOCAL_TIMEZONE_${i}=${LOCAL_TIMEZONE}"
+    export "FITBIT_INFLUXDB_DATABASE_${i}=${USER_DB}"
 
-    # Call the Python fetcher with the user index so it knows which env vars to read
     python3 /app/fitbit_fetch_wrapper.py --user-index "${i}" &
     PIDS+=($!)
 done
