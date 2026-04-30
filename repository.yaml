@@ -1,3 +1,5 @@
-name: "Fitbit Data Fetch Add-on Repository"
-url: "https://gitlab.fristerspace.de/demian/fitbit-ha-addon"
-maintainer: "Demian Frister <demian.frister@gmail.com>"
+{
+  "name": "Fitbit HA Add-on (Multi-User Fork)",
+  "url": "https://github.com/asianbomber1124/fitbit-ha-addon",
+  "maintainer": "asianbomber1124"
+}
